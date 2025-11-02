@@ -1,0 +1,77 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Emotion Detection Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Emotion Detection</h1>
+
+    <section class="card">
+      <h2>Upload an Image</h2>
+      <form id="upload-form" method="post" enctype="multipart/form-data" action="/predict">
+        <input type="text" name="name" placeholder="Your name (optional)">
+        <input type="file" name="image" accept="image/*">
+        <input type="hidden" name="return" value="html">
+        <button type="submit">Submit Image</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Live Webcam</h2>
+      <video id="video" width="320" height="240" autoplay></video>
+      <canvas id="canvas" width="320" height="240" style="display:none"></canvas>
+      <br>
+      <input type="text" id="name" placeholder="Your name (optional)">
+      <button id="snap">Capture & Analyze</button>
+      <div id="result"></div>
+    </section>
+  </div>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const snapBtn = document.getElementById('snap');
+const resultDiv = document.getElementById('result');
+
+// Access webcam
+navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+.then(stream => {
+  video.srcObject = stream;
+})
+.catch(err => {
+  console.error('Error accessing webcam:', err);
+  resultDiv.innerText = 'Webcam not available: ' + err.message;
+});
+
+snapBtn.addEventListener('click', async () => {
+  // draw video frame to canvas
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/png');
+  const name = document.getElementById('name').value;
+
+  // Post to server
+  const form = new FormData();
+  form.append('image_base64', dataUrl);
+  form.append('name', name);
+
+  resultDiv.innerText = 'Analyzing...';
+
+  const resp = await fetch('/predict', {
+    method: 'POST',
+    body: form
+  });
+  const json = await resp.json();
+  if (json.error) {
+    resultDiv.innerText = 'Error: ' + json.error;
+  } else {
+    resultDiv.innerHTML = `<strong>Emotion:</strong> ${json.emotion} <br> <strong>Confidence:</strong> ${(json.confidence*100).toFixed(2)}%`;
+  }
+});
+</script>
+</body>
+</html>

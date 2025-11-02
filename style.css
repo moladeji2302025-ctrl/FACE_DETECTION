@@ -1,0 +1,30 @@
+/* static/style.css */
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f8fb;
+  color: #222;
+  display:flex;
+  justify-content:center;
+}
+.container {
+  width: 800px;
+  margin: 24px;
+}
+.card {
+  background: white;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+h1 { margin-top: 0;}
+button {
+  background: #2b8cff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor:pointer;
+}
+button:hover { opacity: 0.95; }
+input[type=file] { margin-top:8px; }
